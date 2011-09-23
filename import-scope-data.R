@@ -44,14 +44,3 @@ LIBSDistReader <- function(filename){
   file.hs
 }
 ## --------------------------------------------------
-
-
-## Utility Functions
-
-LIBSRegionalHS <- function(hs.list){
-  ## sorts the output list by region. suitable for LIBS cset-type
-  ## datasets.
-  list(UV   = Filter(function(w){w$region=="UV"},hs.list),
-       VIS  = Filter(function(w){w$region=="VIS"},hs.list),
-       VNIR = Filter(function(w){w$region=="VNIR"},hs.list))
-}
