@@ -32,7 +32,10 @@ RegionalHSList <- function(hs.list){
        VIS = bind(direction='r',Filter(function(w){w$region=="VIS"},hs.list)),
        VNIR = bind(direction='r',Filter(function(w){w$region=="VNIR"},hs.list)))
 }
-
+BsubPlot <- function(spectra.hs, baselines.hs, index){
+  plot(spectra.hs[index])
+  plot(baselines.hs[index],add=TRUE,col=2)
+}
 ## --------------------------------------------------
 ## -----------Wavelength Standardization-------------
 ## --------------------------------------------------
@@ -44,7 +47,14 @@ CsetVNIRAxis <- function(x.hs){spc.loess(x.hs,seq(495,925,.15),span=.003)}
 cset.wl.stdz.funcs <- list(CsetUVAxis,CsetVISAxis,CsetVNIRAxis)
 ## --------------------------------------------------
 
-
+SortByRegion <- function(x.hs.list){
+  uv.hs.list <- x.hs.list[sapply(x.hs.list,function(x){x@data$region=="UV"})]
+  vis.hs.list <- x.hs.list[sapply(x.hs.list,function(x){x@data$region=="VIS"})]
+  vnir.hs.list <- x.hs.list[sapply(x.hs.list,function(x){x@data$region=="VNIR"})]
+  list(uv=AlphabeticHyperspec(rbind.hyperSpec(uv.hs.list)),
+       vis=AlphabeticHyperspec(rbind.hyperSpec(vis.hs.list)),
+       vnir=AlphabeticHyperspec(rbind.hyperSpec(vnir.hs.list)))
+}
 ## These pipelines make the assumption that a spectrum can be broken into
 ## three regions, UV, VIS, and VNIR.
 
@@ -102,6 +112,12 @@ averageSpots <- function(x.hs){
   aggregate(x.hs, by=x.hs$id, mean)
 }
 
+IntensityNormalize <- function(x.hs){
+  print("Normalizing rows by intensity")
+  sums <- apply(x.hs,1,sum)
+  sweep(x.hs,1,sums,"/")
+}
+
 AmplitudeMult <- function(x.hs.list, amp.factor){
   lapply(x.hs.list,function(y){apply(y,1,function(z){z*amp.factor})})
 }
@@ -156,3 +172,20 @@ SortByRegion <- function(x.hs.list){
 ## 1. readdirectory
 ## 2. sortbyregion
 ## 3. pipeline 
+
+Pipeline <- function(x.hs.list, wl.std.funcs, wl.cal.funcs){
+  ## The reason this operates on a list is entirely due to wavelength
+  ## standardization; the rest of the stuff could be done on a non
+  ## per-region basis. Just call a RegionalHS on the output of
+  ## ReadDirectory.
+  cal.hs.list <- mapply(transformWLsBy, x.hs.list, wl.cal.funcs)
+  ## do.call needs a list of arguments to construct a function call!
+  std.hs.list <- mapply(do.call, wl.std.funcs, lapply(cal.hs.list,list))
+  #bline.hs.list <- lapply(std.hs.list, function(x){apply(x,1,BaselineSubtract)})
+  #sub.hs.list <- mapply("-",std.hs.list,bline.hs.list)
+  
+  #f.hs.list <- lapply(sub.hs.list,averageSpots)
+  unsub.hs.list <- lapply(std.hs.list,averageSpots)
+  ## NOTE: currently un-usable, using it to test un-averaged into pls
+  list(spec=unsub.hs.list) #baselines=bline.hs.list)
+}
