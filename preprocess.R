@@ -108,7 +108,7 @@ Pipeline.Bsub <- function(x.hs.list, wl.std.funcs, wl.cal.funcs){
   list(spec=sub.hs.list, baselines=bline.hs.list)
 }
 
-## steps:
-## 1. readdirectory
-## 2. sortbyregion
-## 3. pipeline 
+## steps (sample):
+## 1. cset.readout <- ReadDirectory(cset.data.dir, J0Readerr)
+## 2. cset.pipeout <- Pipeline.BsubAvgSpots(cset.readout, cset.wl.stdz.funcs, cset.wl.cal.funcs)
+## 3. cset.hs <- cbind.hyperSpec(cset.pipeout$spec)

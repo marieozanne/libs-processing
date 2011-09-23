@@ -10,7 +10,7 @@ cset.wl.cal.funcs <-
        vis=function(x){ -(.0000029704*x^2) + (.0495324943*x) + 382.0626425975},#vis
        vnir=function(x){ -(.0000085888*x^2) + (.2292115964*x) + 493.6728296224})#vnir
 
-cset.data.dir <- "/home/marco/clean-data/century-set/"
+cset.data.dir <- "/home/marco/data-cleaned/century-set"
 cset.comps.file <- "/home/marco/msl-stats/stashed-objects/century-comps.rtable"
 cset.major.comps.file <- "/home/marco/msl-stats/stashed-objects/century-major-comps.rtable"
 
