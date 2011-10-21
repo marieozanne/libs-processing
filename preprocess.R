@@ -112,3 +112,6 @@ Pipeline.Bsub <- function(x.hs.list, wl.std.funcs, wl.cal.funcs){
 ## 1. cset.readout <- ReadDirectory(cset.data.dir, J0Readerr)
 ## 2. cset.pipeout <- Pipeline.BsubAvgSpots(cset.readout, cset.wl.stdz.funcs, cset.wl.cal.funcs)
 ## 3. cset.hs <- cbind.hyperSpec(cset.pipeout$spec)
+## > cset.hs <- AlphabeticHyperspec(cset.hs)
+## > cset.hs<- cset.hs[1:100,]
+## > cset.hs@data <- cbind(cset.hs@data,cset.major.comps)
