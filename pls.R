@@ -1,3 +1,42 @@
+DumpModelTest <- function(x.pls, test.hs, directory, id.vector){
+  dir.create(directory)
+  chosen.ncomp <- PlsCompGuess(x.pls)$comps
+  cat(chosen.ncomp, "\n", file=(file.path(directory, "ncomp.txt")))
+
+  test.id.vector <- as.character(test.hs@data$id)
+
+  ## Predictions (with IDs)
+  write.csv(data.frame(id=test.id.vector, predicted=predict(x.pls,newdata=test.hs@data, ncomp=chosen.ncomp)[,,]),
+            file.path(directory, "testpredictions.csv"))
+
+  ## RMSEP vs. ncomp curve
+  write.csv(RMSEP(x.pls)$val[1,,], file=(file.path(directory, "RMSEP.csv")))
+
+  ## Coefficents of chosen model
+  write.csv(coef(x.pls, ncomp=chosen.ncomp), file=(file.path(directory, "coef.csv")))
+
+  ## Spectra (with IDs)
+  spc.matrix <- x.pls$x
+  rownames(spc.matrix) <- id.vector
+  write.csv(spc.matrix, file=file.path(directory, "spectra.csv"))
+
+  ## Loadings (projection coefs for each PC)
+  write.csv(t(loadings(x.pls)), file=(file.path(directory, "loadings.csv")))
+  
+  ## Projections of spectra into PC-space (with IDs)
+  score.matrix <- scores(x.pls)
+  rownames(score.matrix) <- id.vector
+  write.csv(score.matrix, file=(file.path(directory, "scores.csv")))
+
+  ## true Y values (with IDs, just in case)
+  y.values.true <- x.pls$y
+  rownames(y.values.true) <- id.vector
+  write.csv(y.values.true, file=(file.path(directory, "true-y-values.csv")))
+
+  ## Explained variance per-component
+  write.csv(attr(scores(x.pls),"explvar"), file=(file.path(directory, "explvar.csv")))
+}
+
 <<<<<<< /home/marco/Dropbox/all-code-versions/code/fresh-start/pls.R
 library(pls)
 
@@ -110,6 +149,8 @@ DumpModel <- function(x.pls, id.vector, directory){
   ## Explained variance per-component
   write.csv(attr(scores(x.pls),"explvar"), file=(file.path(directory, "explvar.csv")))
 }
+## ==================================================
+## GOODNESS ENDS HERE???
 
 ||||||| /home/marco/Dropbox/all-code-versions/code/msl-stats/src/core/pls.R
 PlsReady <- function(x.hs,x.comps){
@@ -282,186 +323,7 @@ DumpModelTest <- function(x.pls, test.hs, directory, id.vector){
   write.csv(attr(scores(x.pls),"explvar"), file=(file.path(directory, "explvar.csv")))
 ||||||| /home/marco/Dropbox/all-code-versions/code/msl-stats/src/core/pls.R
 
-map.test <- function(models, test.fcn, tag, test.hs, test.comps){
-  names(models) <- NamesCat(models, tag)
-  mapply(function(x){test.fcn(x, test.hs, test.comps)}, models, USE.NAMES=TRUE,SIMPLIFY=FALSE)
-}
-
-map.ival <- function(models, val.fcn){
-  names(models) <- NamesCat(models, "ival")
-  mapply(val.fcn,models,USE.NAMES=TRUE,SIMPLIFY=FALSE)
-}
-
-DirtyAbsoluteError <- function(lonely.spectrums, only.composition, model, nc){
-  test.points <- lapply(lonely.spectrums, function(x.hs){PlsReady(x.hs,only.composition)})
-  errors.list <- lapply(test.points, function(point){point$comps-predict(model,ncomp=nc,newdata=point)[,,]})
-  errors.table <- do.call(rbind,errors.list)
-  rownames(errors.table) <- names(errors.list)
-  errors.table
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-## The Cornfield,,
-## --------------------------------------------------
-
-## map.exval <- function(models, test.fcn, tag){
-##   names(models) <- NamesCat(models, tag)
-##   mapply(function(x){test.fcn(x, sed.val.hs, sed.val.major.comps)}, models, USE.NAMES=TRUE,SIMPLIFY=FALSE)
-## }
-
-## map.extest <- function(models, test.fcn, tag){
-##   names(models) <- NamesCat(models, tag)
-##   mapply(function(x){test.fcn(x, sed.hs.test, sed.major.comps)}, models, USE.NAMES=TRUE,SIMPLIFY=FALSE)
-## }
-
-## map.testmodels <- function(models, test.fcn){
-##   names(models) <- NamesCat(models, "tested")
-##   mapply(function(x){test.fcn(x, sed.test.hs, sed.test.major.hs)}, models, USE.NAMES=TRUE, SIMPLIFY=FALSE)}
-##> as.data.frame(SelectModels(pls1.valresults,list(global=pls.GlobalMin,fstloc=pls.firstLocalMin)))
-
-
-
-OneSigmaPredictionTest <- function(model,predictors,pc.count,compositions){
-  ## model is a PLS model
-  ## newdata MUST BE a hyperspec object
-  ## pc.count is an integer specifying number of pc's to use
-  ## compositions is a matrix matching the dimension of
-  predictions <- predict(model,newdata=predictors[[]])[,,pc.count]
-  list(errors=sd(compositions - predictions),
-       results=predictions)
-=======
-MakePlsModels <- function(elements, x.hs){
-  sapply(elements, function(y){plsr(as.formula(paste(y," ~ spc")),data=killNA(x.hs,y)@data, ncomp=20, x=TRUE,y=TRUE,validation="CV")},
-           USE.NAMES=TRUE,simplify=FALSE)
->>>>>>> /home/marco/Dropbox/all-code-versions/old-code-collection/fresh-start/pls.R
-}
-
-<<<<<<< /home/marco/Dropbox/all-code-versions/code/fresh-start/pls.R
-MakeDirectoryNames <- function(base.name, element.names){
-  Map(function(base,elt){file.path(base,elt)}, list(base.name), element.names)
   
-||||||| /home/marco/Dropbox/all-code-versions/code/msl-stats/src/core/pls.R
-OSPredictionTest <- function(model,testset,pc.count){
-  # testset is a PlsReady object
-  predictions <- predict(model,newdata=testset)[,,pc.count]
-  list(oserrors=sd(testset$comps - predictions),
-       rmsep=RMSEP(model,ncomp=pc.count,newdata=testset),
-       results=predictions)
-}
-
-
-TrainPLSModels <- function(trainset.list){
-  ## this was bad because it mixed iteration over a list with my only
-  ## way of actually calling the plsr library. talk about your
-  ## confusion of abstractions... but it might still be good to have
-  ## this around as a wrapper over a sane function?
- trainset.plsready <- lapply(trainset.list,function(x){PlsReady(x$hs,x$comps)}) 
- lapply(trainset.plsready, function(x){plsr(comps ~ spectra, ncomp = 15, data = x, validation="LOO")}) 
-}
-
-
-SelectModels <- function(models.valouts,model.select.fcns){
-  lapply(models.valouts, function(model.valouts){
-    lapply(model.valouts, function(model.val){
-      lapply(model.select.fcns, function(model.select.fcn){model.select.fcn(model.val)})
-    })
-  })
-}
-## this is really, REALLY dirty: notice the use of validation code for
-## testing. ugh.
-DirtyModelTest.pls1 <- function(model,x.hs.test,x.comps.test){
-  tester <- make.pls1.evalidator(x.hs.test,x.comps.test)
-  tester(model)
-}
-## I guess lapply this awful thing to each list of by-response pls1
-## models according to data set.
-DirtyTestResults.pls1 <- function(models,x.hs.test,x.comps.test){
-  lapply(models, function(z){DirtyModelTest.pls1(z,x.hs.test,x.comps.test)})
-}
-
-GetModelTestResults <- function(model.selections,model.results){
-  lapply(model.selections)
-
-}
-
-ValOutput <- function(model.list, val.funks){
-  lapply(model.list, function(x){
-    lapply(val.funks, function(g){g(x)})
-  })  
-}
-
-interleave <- function(v1,v2){
-  ord1 <- 2*(1:length(v1))-1
-  ord2 <- 2*(1:length(v2))
-  c(v1,v2)[order(c(ord1,ord2))]}
-
-pls1.errortable.GlobalMin <- function(x.pls1.errortable){
-  lapply(pls1.externalval.phy,function(x)(GlobalMin(x$val)))
-}
-
-pls2.errortable.GlobalMin <- function(x.pls2.errortable){
-  apply(x.pls2.errortable$val[1,,],1,GlobalMin)
-}
-
-pls1.errortable.firstLocalMin <- function(x.pls1.errortable){
-  lapply(x.pls1.errortable, function(x){firstLocalMin(x$val[1,,])})
-}
-
-pls2.errortable.firstLocalMin <- function(x.pls2.errortable){
-  apply(x.pls2.errortable$val[1,,],1,firstLocalMin)
-}
-
-## Response: SiO2 
-## (Intercept)      1 comps      2 comps      3 comps      4 comps      5 comps  
-##       3.601        8.999        7.399       11.357       11.989        7.125  
-##     6 comps      7 comps      8 comps      9 comps     10 comps     11 comps  
-##       6.351        7.007        5.502        6.491        6.554        7.152  
-##    12 comps     13 comps     14 comps     15 comps  
-##       6.982        6.541        6.784       10.303  
-## > nice.pls1.cset.internalval <- sapply(trained.pls1.cset.internalval,function(x){summary(x$val)})
-## > nice.pls2.cset.internalval <- summary(t(simple.internel.rmsep.table.pls2))
-## > write.csv(nice.pls1.cset.internalval,file="/home/marco/nice.pls1.cset.internalval.csv")
-## > write.csv(nice.pls2.cset.internalval,file="/home/marco/nice.pls2.cset.internalval.csv")
-
-## > write.csv2(lapply(pls1.cset.and.phy.externalval,function(x){x$val}),file="/home/marco/pls1.cset.and.phy.externalval.csv")
-## > write.csv2(lapply(trained.pls1.cset.and.phy.internalval,function(x){x$val}),file="/home/marco/pls1.cset.and.phy.internalval.csv")
-## > 
-
-## How do I get firstLocalMin to run on my tables of RMSEP's?
-## pls1: > firstLocalMin(pls1.externalval.phy[[1]]$val[,,])
-## pls1: lapply(pls1.externalval.phy, function(x){firstLocalMin(x$val)})
-## pls2: > apply(external.val.rmseps$cset$val[1,,],1,firstLocalMin)
-## How do I get GlobalMin to run on my tables of RMSEP's?
-## pls1: lapply(pls1.externalval.phy,function(x)(GlobalMin(x$val)))
-## generating lines of that table.
-## > mapply(function(x,y){list(comp=y-1,error=flat.test.results[x,y])},1:10,comp.selections)
-## turning pls1 test results into something easier to work with:
-## In all functions below, we take the CV, not the adjusted CV. They
-## do not differ much.
-make.pls1.evalidator <- function(x.hs,x.comps){
-  function(z.pls1.model){
-    t(as.data.frame(lapply(MultiTestPLSModels(z.pls1.model,x.hs,x.comps),function(x){x$val[1,,]})))
-  }
-}
-
-eval.pls2 <- function(){}
-
-RMSEPtoFE <- function(rmsep.obj){
-
-  rmsep.obj$val[,,]
-
-=======
 TestPlsModel <- function(x.pls, testdata){
    test.results <- MSEP(x.pls, newdata=testdata@data)
    comps <- PlsCompGuess(x.pls)$comps
