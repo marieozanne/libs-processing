@@ -1,3 +1,0 @@
-hsToMatrix <- function(x.hs){
-  
-}
