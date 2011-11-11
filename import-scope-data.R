@@ -28,9 +28,9 @@ filename.to.J0Mdat <- function(filename){
 ## --------------------------------------------------
 
 filename.to.LIBSDistMdat <- function(filename){
-  split.first <- strsplit(filename,split="/",fixed=TRUE)[[1]]
+  split.first <- rev(strsplit(filename,split="/",fixed=TRUE)[[1]])
   split.filename <- strsplit(split.first[2],split="_",fixed=TRUE)[[1]]
-  split.unique <- strsplit(split.first[3],split=".",fixed=TRUE)[[1]]
+  split.unique <- strsplit(split.first[1],split=".",fixed=TRUE)[[1]]
   list(id=split.filename[1],
        distance=split.filename[2],
        region=split.filename[3],
