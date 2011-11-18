@@ -6,10 +6,10 @@ MakeLassoModels <- function(elements, x.hs){
          USE.NAMES=TRUE,simplify=FALSE)
 }
 
-MakeElasticNetModels <- function(elements, x.hs){
-    sapply(elements, function(y){
-        cv.glmnet(killNA(x.hs,y)[[]],killNA(x.hs,y)@data[[y]],nlambda=300,alpha=0.5)},
-           USE.NAMES=TRUE,simplify=FALSE)
+MakeRidgeModels <- function(elements, x.hs){
+  sapply(elements, function(y){
+    cv.glmnet(x.hs[[]], x.hs@data[[y]],nlambda=300,alpha=.5)},
+         USE.NAMES=TRUE,simplify=FALSE)
 }
 
 MakeLassoModels <- function(elements, x.hs){
