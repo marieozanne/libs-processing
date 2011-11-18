@@ -49,13 +49,6 @@ dcorr.9m.data.dir <- "/home/marco/clean-data/distance-data/9m"
 
 dd.major.comps.file <- "/home/marco/msl-stats/stashed-objects/distance-data-comps.rtable"
 
-## Distance Corrected Data Summer 2011 Los Alamos
-
-libs.dist.cal.funcs <-
-  list(uv.cal=function(x){-(0.0000029101*x^2)+(0.0553855678*x)+237.7855745074},
-       vis.cal=function(x){-(0.0000031565*x^2)+(0.0497586231*x)+380.7079308162},
-       vnir.cal=function(x){-(0.0000101229*x^2)+(0.2416644341*x)+457.5617462565})
-
 ## PET Class -- Distance Version
 
 ## Already represented here: for the distance version of the PET class, use dcorr.wl.cal.funcs.
